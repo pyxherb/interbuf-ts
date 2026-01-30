@@ -37,6 +37,7 @@ export interface ClassField {
 
 export interface ClassLayout {
 	fields: ClassField[];
+	fieldIndices: { [key: string]: number };
 }
 
 export type StructInstance = { [key: string]: object };

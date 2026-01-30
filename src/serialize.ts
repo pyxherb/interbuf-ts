@@ -57,7 +57,7 @@ function _doSerializeByDataType(context: SerializeContext, dataType: DataType, d
 		case DataTypeKind.I8: {
 			let data = dataIn as number;
 
-			if (isDataInRangeI8(data))
+			if (!isDataInRangeI8(data))
 				throw RangeError("The data is out of range of the type");
 
 			context.writer.writeI8(data);
@@ -66,7 +66,7 @@ function _doSerializeByDataType(context: SerializeContext, dataType: DataType, d
 		case DataTypeKind.I16: {
 			let data = dataIn as number;
 
-			if (isDataInRangeI16(data))
+			if (!isDataInRangeI16(data))
 				throw RangeError("The data is out of range of the type");
 
 			context.writer.writeI16(data);
@@ -75,7 +75,7 @@ function _doSerializeByDataType(context: SerializeContext, dataType: DataType, d
 		case DataTypeKind.I32: {
 			let data = dataIn as number;
 
-			if (isDataInRangeI32(data))
+			if (!isDataInRangeI32(data))
 				throw RangeError("The data is out of range of the type");
 
 			context.writer.writeI32(data);
@@ -84,7 +84,7 @@ function _doSerializeByDataType(context: SerializeContext, dataType: DataType, d
 		case DataTypeKind.I64: {
 			let data = dataIn as bigint;
 
-			if (isDataInRangeI64(data))
+			if (!isDataInRangeI64(data))
 				throw RangeError("The data is out of range of the type");
 
 			context.writer.writeI64(data);
@@ -93,7 +93,7 @@ function _doSerializeByDataType(context: SerializeContext, dataType: DataType, d
 		case DataTypeKind.U8: {
 			let data = dataIn as number;
 
-			if (isDataInRangeU8(data))
+			if (!isDataInRangeU8(data))
 				throw RangeError("The data is out of range of the type");
 
 			context.writer.writeU8(data);
@@ -102,7 +102,7 @@ function _doSerializeByDataType(context: SerializeContext, dataType: DataType, d
 		case DataTypeKind.U16: {
 			let data = dataIn as number;
 
-			if (isDataInRangeU16(data))
+			if (!isDataInRangeU16(data))
 				throw RangeError("The data is out of range of the type");
 
 			context.writer.writeU16(data);
@@ -111,7 +111,7 @@ function _doSerializeByDataType(context: SerializeContext, dataType: DataType, d
 		case DataTypeKind.U32: {
 			let data = dataIn as number;
 
-			if (isDataInRangeU32(data))
+			if (!isDataInRangeU32(data))
 				throw RangeError("The data is out of range of the type");
 
 			context.writer.writeU32(data);
@@ -120,7 +120,7 @@ function _doSerializeByDataType(context: SerializeContext, dataType: DataType, d
 		case DataTypeKind.U64: {
 			let data = dataIn as bigint;
 
-			if (isDataInRangeU64(data))
+			if (!isDataInRangeU64(data))
 				throw RangeError("The data is out of range of the type");
 
 			context.writer.writeU64(data);
@@ -140,6 +140,9 @@ function _doSerializeByDataType(context: SerializeContext, dataType: DataType, d
 		}
 		case DataTypeKind.String: {
 			let data = dataIn as string;
+
+			if(!isDataInRangeU64(BigInt(data.length)))
+				throw RangeError("The length is too long");
 
 			context.writer.writeU64(BigInt(data.length));
 
@@ -269,7 +272,7 @@ function _doSerialize(context: SerializeContext): void {
 				{
 					let data = BigInt(i.name.length);
 
-					if (isDataInRangeU64(data))
+					if (!isDataInRangeU64(data))
 						throw RangeError("Field name is too long");
 
 					context.writer.writeU64(data);
@@ -293,11 +296,13 @@ function _doSerialize(context: SerializeContext): void {
 				++exData.idxMember;
 				break;
 			}
+			default:
+				throw Error("Unrecognized frame type");
 		}
 	}
 }
 
-function serializeStruct(writer: Writer, rootLayout: StructLayout, obj: StructInstance): void {
+export function serializeStruct(writer: Writer, rootLayout: StructLayout, obj: StructInstance): void {
 	let context: SerializeContext = {
 		frames: [],
 		writer: writer
@@ -317,7 +322,7 @@ function serializeStruct(writer: Writer, rootLayout: StructLayout, obj: StructIn
 	_doSerialize(context);
 }
 
-function serializeClass(writer: Writer, rootLayout: ClassLayout, obj: ClassInstance): void {
+export function serializeClass(writer: Writer, rootLayout: ClassLayout, obj: ClassInstance): void {
 	let context: SerializeContext = {
 		frames: [],
 		writer: writer
